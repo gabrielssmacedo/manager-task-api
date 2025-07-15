@@ -1,6 +1,7 @@
 package gsm.task.manager.domain.model;
 
 import gsm.task.manager.domain.enums.Priority;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,6 +24,8 @@ public class SubTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "subtask_description", nullable = false)
     private String description;
 
     @Enumerated(EnumType.STRING)

@@ -29,7 +29,10 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 50)
     private String title;
+    @Column(length = 200)
     private String shortDescription;
 
     @Enumerated(EnumType.STRING)
@@ -43,7 +46,7 @@ public class Task {
     private StatusTask status;
 
     @Column(name = "datetime_task")
-    private LocalDateTime datetime;
+    private LocalDateTime datetimeLimit;
     private String icon;
 
     @OneToMany(mappedBy = "task")
