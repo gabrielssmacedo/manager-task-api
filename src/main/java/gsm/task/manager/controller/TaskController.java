@@ -5,7 +5,9 @@ import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,4 +43,18 @@ public class TaskController {
                 .toUri();
         return ResponseEntity.created(uri).body(taskCreated);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> findTaskById(@PathVariable Long id) {
+        Task taskFound = taskService.findTaskById(id);
+        return ResponseEntity.ok(taskFound);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
+        Task taskUpdated = taskService.updateTask(id, task);
+        return ResponseEntity.ok(taskUpdated);
+    }
+
+
 }

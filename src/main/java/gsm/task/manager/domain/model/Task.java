@@ -32,6 +32,7 @@ public class Task {
 
     @Column(nullable = false, length = 50)
     private String title;
+
     @Column(length = 200)
     private String shortDescription;
 
@@ -47,6 +48,7 @@ public class Task {
 
     @Column(name = "datetime_task")
     private LocalDateTime datetimeLimit;
+
     private String icon;
 
     @OneToMany(mappedBy = "task")
