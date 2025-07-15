@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -75,6 +76,7 @@ public class TaskService {
         if(task == null) throw new RuntimeException();
         if(task.getStatus() != null) throw new RuntimeException("Isn't possible define a Status on creation");
         validateStatus(task);
+        convertDateToGlobal(task);
         Task taskSaved = taskRepository.save(task);
         convertDateToLocal(taskSaved);
         return taskSaved;
@@ -85,13 +87,14 @@ public class TaskService {
         else throw new RuntimeException("Task not found");
     }
 
-    public Task updateTask(Long id, Task task) {
-        Task taskToUpdate = findTaskById(id);
-        updateData(taskToUpdate, task);
-        validateStatus(task);
-        taskToUpdate = taskRepository.save(validateStatus(taskToUpdate));
-        convertDateToLocal(taskToUpdate);
-        return taskToUpdate;
+    public Task updateTask(Long id, Task taskToUpdate) {
+        Task taskUpdated = findTaskById(id);
+        updateData(taskUpdated, taskToUpdate);
+        validateStatus(taskUpdated);
+        convertDateToGlobal(taskUpdated);
+        taskUpdated = taskRepository.save(validateStatus(taskUpdated));
+        convertDateToLocal(taskUpdated);
+        return taskUpdated;
     }
 
     private void updateData(Task taskToUpdate, Task taskUpdated) {
@@ -126,7 +129,14 @@ public class TaskService {
     }
 
     private void convertDateToLocal(Task task) {
-        Instant inst = Instant.from(task.getDatetimeLimit());
-        task.setDatetimeLimit(LocalDateTime.ofInstant(inst, ZoneId.systemDefault()));
+        ZonedDateTime zoneGlobal = task.getDatetimeLimit().atZone(ZoneId.of("GMT"));
+        ZonedDateTime zoneLocal = zoneGlobal.withZoneSameInstant(ZoneId.systemDefault());
+        task.setDatetimeLimit(zoneLocal.toLocalDateTime());
+    }
+
+    private void convertDateToGlobal(Task task) {
+        ZonedDateTime zoneLocal = task.getDatetimeLimit().atZone(ZoneId.systemDefault());
+        ZonedDateTime zoneGlobal = zoneLocal.withZoneSameInstant(ZoneId.of("GMT"));
+        task.setDatetimeLimit(zoneGlobal.toLocalDateTime());
     }
 }
