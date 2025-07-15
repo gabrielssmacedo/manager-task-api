@@ -4,6 +4,7 @@ import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,18 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    @GetMapping("/week")
+    public ResponseEntity<List<Task>> findWeeklyTasks() {
+        List<Task> tasks = taskService.findWeeklyTasks();
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<List<Task>> findTasksForToday() {
+        List<Task> tasks = taskService.findTaskForToday();
+        return ResponseEntity.ok(tasks);
+    }
+
     @PostMapping
     @Operation(summary = "Criar nova tarefa")
     public ResponseEntity<Task> createTask(@RequestBody Task taskToCreate) {
@@ -54,6 +67,12 @@ public class TaskController {
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
         Task taskUpdated = taskService.updateTask(id, task);
         return ResponseEntity.ok(taskUpdated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
+        taskService.deleteTaskById(id);
+        return ResponseEntity.noContent().build();
     }
 
 

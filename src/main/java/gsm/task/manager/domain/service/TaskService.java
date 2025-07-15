@@ -5,6 +5,8 @@ import gsm.task.manager.repository.TaskRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,9 +29,29 @@ public class TaskService {
         return taskRepository.findById(id).orElseThrow(RuntimeException::new);
     }
 
+    public List<Task> findWeeklyTasks() {
+        List<Task> allTasks = findAllTasks();
+        return allTasks.stream()
+                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now().plusDays(8L)))
+                .toList();
+    }
+
+    public List<Task> findTaskForToday() {
+        List<Task> allTasks = findAllTasks();
+        LocalDateTime now = LocalDateTime.now();
+        return allTasks.stream()
+                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now().plusHours(24 - now.getHour())))
+                .toList();
+    }
+
     public Task createTask(Task task) {
         if(task == null) throw new RuntimeException();
         return taskRepository.save(task);
+    }
+
+    public void deleteTaskById(Long id) {
+        if(taskRepository.existsById(id)) taskRepository.deleteById(id);
+        else throw new RuntimeException("Task not found");
     }
 
     public Task updateTask(Long id, Task task) {
