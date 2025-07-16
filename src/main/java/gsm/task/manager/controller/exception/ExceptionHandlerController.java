@@ -6,6 +6,7 @@ import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -28,7 +29,21 @@ public class ExceptionHandlerController {
         return ResponseEntity.status(status).body(seo);
     }
 
-    private StandardErrorObject createObjectError(String error, HttpStatus status, RuntimeException exc, HttpServletRequest req) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<StandardErrorObject> handlerDTOException(HttpMessageNotReadableException  exc, HttpServletRequest req) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardErrorObject seo = createObjectError("Invalid Json", status, exc, req);
+        return ResponseEntity.status(status).body(seo);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<StandardErrorObject> handlerOtherExceptions(Throwable exc, HttpServletRequest req) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardErrorObject seo = createObjectError("Server error", status, exc, req);
+        return ResponseEntity.status(status).body(seo);
+    }
+
+    private StandardErrorObject createObjectError(String error, HttpStatus status, Throwable exc, HttpServletRequest req) {
         return new StandardErrorObject(Instant.now()
                 , status.value()
                 , error
