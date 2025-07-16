@@ -1,9 +1,7 @@
 package gsm.task.manager.controller;
 
 import gsm.task.manager.domain.dto.TaskRequestDTO;
-import gsm.task.manager.domain.model.SubTask;
 import gsm.task.manager.domain.model.Task;
-import gsm.task.manager.domain.service.SubTaskService;
 import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,11 +26,9 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
-    private final SubTaskService subTaskService;
 
-    public TaskController(TaskService taskService, SubTaskService subTaskService) {
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
-        this.subTaskService = subTaskService;
     }
 
     @GetMapping
@@ -43,21 +39,21 @@ public class TaskController {
     }
 
     @GetMapping("/week")
-    @Operation(summary = "Visualizar todas as tarefas da semana")
+    @Operation(summary = "Visualizar todas as tarefas da semana", description = "  ")
     public ResponseEntity<List<Task>> findWeeklyTasks() {
         List<Task> tasks = taskService.findWeeklyTasks();
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/today")
-    @Operation(summary = "Visualizar todas as tarefas de hoje")
+    @Operation(summary = "Visualizar todas as tarefas de hoje", description = "  ")
     public ResponseEntity<List<Task>> findTasksForToday() {
         List<Task> tasks = taskService.findTaskForToday();
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/late")
-    @Operation(summary = "Visualizar todas as tarefas atrasadas")
+    @Operation(summary = "Visualizar todas as tarefas atrasadas", description = "  ")
     public ResponseEntity<List<Task>> findTasksLate() {
         List<Task> tasks = taskService.findTasksLated();
         return ResponseEntity.ok(tasks);
@@ -71,7 +67,7 @@ public class TaskController {
     }
 
     @PostMapping
-    @Operation(summary = "Criar nova tarefa")
+    @Operation(summary = "Criar nova tarefa", description = "   ")
     public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequestDTO taskToCreate) {
         Task taskCreated = taskService.createTask(taskToCreate);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -82,7 +78,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Modificar campos de uma tarefa")
+    @Operation(summary = "Modificar campos de uma tarefa", description = "   ")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestDTO taskToUpdate) {
         Task taskUpdated = taskService.updateTask(id, taskToUpdate);
         return ResponseEntity.ok(taskUpdated);
@@ -95,10 +91,4 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/subtasks")
-    @Operation(summary = "Visualizar subtarefas de uma tarefa")
-    public ResponseEntity<List<SubTask>> findAllSubtaskOfTask(@PathVariable Long id) {
-        List<SubTask> subTasks = subTaskService.findAllSubtasksOfTask(id);
-        return ResponseEntity.ok(subTasks);
-    }
 }

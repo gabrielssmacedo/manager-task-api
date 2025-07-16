@@ -1,5 +1,8 @@
 package gsm.task.manager.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Category {
     STUDYING("studying"),
     WORKOUT("workout"),
@@ -10,13 +13,9 @@ public enum Category {
     PLANNING("planning"),
     OTHERS("others");
 
-    private String description;
+    private final String description;
 
     Category(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

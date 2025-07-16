@@ -1,17 +1,16 @@
 package gsm.task.manager.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum StatusTask {
     LATE("late"),
     TO_DO("to do"),
     DONE("done");
 
-    private String description;
+    private final String description;
 
     StatusTask(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

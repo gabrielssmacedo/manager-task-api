@@ -1,6 +1,5 @@
 package gsm.task.manager.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import gsm.task.manager.domain.dto.TaskRequestDTO;
 import gsm.task.manager.domain.enums.Category;
 import gsm.task.manager.domain.enums.Priority;
@@ -40,10 +39,8 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(length = 200)
     private String shortDescription;
 
     @Enumerated(EnumType.STRING)
@@ -61,7 +58,6 @@ public class Task {
 
     private String icon;
 
-   // @JsonIgnore
     @OneToMany(mappedBy = "task")
     private List<SubTask> subTasks;
 }

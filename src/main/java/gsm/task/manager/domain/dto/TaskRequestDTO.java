@@ -2,8 +2,11 @@ package gsm.task.manager.domain.dto;
 
 import gsm.task.manager.domain.enums.Category;
 import gsm.task.manager.domain.enums.Priority;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
+
 import java.time.LocalDateTime;
 
-public record TaskRequestDTO(String title, String shortDescription, Category category,
-                             Priority priority, LocalDateTime datetimeLimit) {
+public record TaskRequestDTO(@NotNull @Length(max = 50) String title, @Length(max = 200) String shortDescription,
+                             Category category, @NotNull Priority priority, @NotNull LocalDateTime datetimeLimit) {
 }

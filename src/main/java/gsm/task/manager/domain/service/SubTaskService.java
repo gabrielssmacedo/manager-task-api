@@ -33,9 +33,10 @@ public class SubTaskService {
         return subtasks;
     }
 
-    public SubTask createSubtask(SubTaskRequestDTO subTaskDTO) {
-        if(subTaskDTO == null) throw new RuntimeException("subtask not instancead");
+    public SubTask createSubtask(SubTaskRequestDTO subTaskDTO, Long idTask) {
+        Task task = taskRepository.findById(idTask).orElseThrow(()-> new TaskNotFoundException("task not found"));
         SubTask subTask = new SubTask(subTaskDTO);
+        subTask.setTask(task);
         return subTaskRespository.save(subTask);
     }
 

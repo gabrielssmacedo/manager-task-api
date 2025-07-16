@@ -74,7 +74,6 @@ public class TaskService {
     }
 
     public Task createTask(TaskRequestDTO taskDTO) {
-        //if(taskDTO == null) throw new RuntimeException();
         Task task = new Task(taskDTO);
         validateStatus(task);
         convertToGlobalDate(task);
@@ -89,7 +88,6 @@ public class TaskService {
     }
 
     public Task updateTask(Long id, TaskRequestDTO taskDTO) {
-        //if(taskDTO == null) throw new RuntimeException();
         Task taskToUpdate = new Task(taskDTO);
         Task taskUpdated = findTaskById(id);
         updateData(taskUpdated, taskToUpdate);
