@@ -1,12 +1,13 @@
 package gsm.task.manager.domain.service;
 
+import gsm.task.manager.domain.dto.TaskRequestDTO;
 import gsm.task.manager.domain.enums.StatusTask;
+import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.repository.TaskRepository;
-import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,24 +25,24 @@ public class TaskService {
     public List<Task> findAllTasks() {
         List<Task> tasksFound = taskRepository.findAll();
         tasksFound = tasksFound.stream().map(task -> {
-            convertDateToLocal(task);
+            convertToLocalDate(task);
             return validateStatus(task);
         }).toList();
 
-        if(tasksFound.isEmpty()) throw new RuntimeException("Task not found");
+        if(tasksFound.isEmpty()) throw new TaskNotFoundException("there are not tasks created");
         return tasksFound;
     }
 
     public Task findTaskById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(RuntimeException::new);
-        convertDateToLocal(task);
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("task not found"));
+        convertToLocalDate(task);
         return validateStatus(task);
     }
 
     public List<Task> findWeeklyTasks() {
         List<Task> allTasks = findAllTasks();
         allTasks = allTasks.stream().map(task -> {
-            convertDateToLocal(task);
+            convertToLocalDate(task);
             return validateStatus(task);
         }).toList();
         return allTasks.stream()
@@ -52,7 +53,7 @@ public class TaskService {
     public List<Task> findTaskForToday() {
         List<Task> allTasks = findAllTasks();
         allTasks = allTasks.stream().map(task -> {
-            convertDateToLocal(task);
+            convertToLocalDate(task);
             return validateStatus(task);
         }).toList();
         LocalDateTime now = LocalDateTime.now();
@@ -64,7 +65,7 @@ public class TaskService {
     public List<Task> findTasksLated() {
         List<Task> allTasks = findAllTasks();
         allTasks = allTasks.stream().map(task -> {
-            convertDateToLocal(task);
+            convertToLocalDate(task);
             return validateStatus(task);
         }).toList();
         return allTasks.stream()
@@ -72,28 +73,30 @@ public class TaskService {
                 .toList();
     }
 
-    public Task createTask(Task task) {
-        if(task == null) throw new RuntimeException();
-        if(task.getStatus() != null) throw new RuntimeException("Isn't possible define a Status on creation");
+    public Task createTask(TaskRequestDTO taskDTO) {
+        if(taskDTO == null) throw new RuntimeException();
+        Task task = new Task(taskDTO);
         validateStatus(task);
-        convertDateToGlobal(task);
+        convertToGlobalDate(task);
         Task taskSaved = taskRepository.save(task);
-        convertDateToLocal(taskSaved);
+        convertToLocalDate(taskSaved);
         return taskSaved;
     }
 
     public void deleteTaskById(Long id) {
         if(taskRepository.existsById(id)) taskRepository.deleteById(id);
-        else throw new RuntimeException("Task not found");
+        else throw new RuntimeException("task not found");
     }
 
-    public Task updateTask(Long id, Task taskToUpdate) {
+    public Task updateTask(Long id, TaskRequestDTO taskDTO) {
+        if(taskDTO == null) throw new RuntimeException();
+        Task taskToUpdate = new Task(taskDTO);
         Task taskUpdated = findTaskById(id);
         updateData(taskUpdated, taskToUpdate);
         validateStatus(taskUpdated);
-        convertDateToGlobal(taskUpdated);
+        convertToGlobalDate(taskUpdated);
         taskUpdated = taskRepository.save(validateStatus(taskUpdated));
-        convertDateToLocal(taskUpdated);
+        convertToLocalDate(taskUpdated);
         return taskUpdated;
     }
 
@@ -128,13 +131,13 @@ public class TaskService {
         return task;
     }
 
-    private void convertDateToLocal(Task task) {
+    private void convertToLocalDate(Task task) {
         ZonedDateTime zoneGlobal = task.getDatetimeLimit().atZone(ZoneId.of("GMT"));
         ZonedDateTime zoneLocal = zoneGlobal.withZoneSameInstant(ZoneId.systemDefault());
         task.setDatetimeLimit(zoneLocal.toLocalDateTime());
     }
 
-    private void convertDateToGlobal(Task task) {
+    private void convertToGlobalDate(Task task) {
         ZonedDateTime zoneLocal = task.getDatetimeLimit().atZone(ZoneId.systemDefault());
         ZonedDateTime zoneGlobal = zoneLocal.withZoneSameInstant(ZoneId.of("GMT"));
         task.setDatetimeLimit(zoneGlobal.toLocalDateTime());

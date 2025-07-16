@@ -1,11 +1,13 @@
 package gsm.task.manager.controller;
 
+import gsm.task.manager.domain.dto.TaskRequestDTO;
 import gsm.task.manager.domain.model.SubTask;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.SubTaskService;
 import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +72,7 @@ public class TaskController {
 
     @PostMapping
     @Operation(summary = "Criar nova tarefa")
-    public ResponseEntity<Task> createTask(@RequestBody Task taskToCreate) {
+    public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequestDTO taskToCreate) {
         Task taskCreated = taskService.createTask(taskToCreate);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -81,8 +83,8 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Modificar campos de uma tarefa")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        Task taskUpdated = taskService.updateTask(id, task);
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestDTO taskToUpdate) {
+        Task taskUpdated = taskService.updateTask(id, taskToUpdate);
         return ResponseEntity.ok(taskUpdated);
     }
 
@@ -94,6 +96,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}/subtasks")
+    @Operation(summary = "Visualizar subtarefas de uma tarefa")
     public ResponseEntity<List<SubTask>> findAllSubtaskOfTask(@PathVariable Long id) {
         List<SubTask> subTasks = subTaskService.findAllSubtasksOfTask(id);
         return ResponseEntity.ok(subTasks);

@@ -1,5 +1,7 @@
 package gsm.task.manager.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import gsm.task.manager.domain.dto.SubTaskRequestDTO;
 import gsm.task.manager.domain.enums.Priority;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +22,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubTask {
+
+    public SubTask(SubTaskRequestDTO subTaskDTO) {
+        this.description = subTaskDTO.description();
+        this.priority = subTaskDTO.priority();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

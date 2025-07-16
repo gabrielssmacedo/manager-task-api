@@ -1,5 +1,8 @@
 package gsm.task.manager.domain.service;
 
+import gsm.task.manager.domain.dto.SubTaskRequestDTO;
+import gsm.task.manager.domain.exceptions.SubTaskException;
+import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import gsm.task.manager.domain.model.SubTask;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.repository.SubTaskRespository;
@@ -22,23 +25,24 @@ public class SubTaskService {
 
     public List<SubTask> findAllSubtasksOfTask(Long taskId) {
         List<SubTask> subtasks = subTaskRespository.findAll();
-        if(!taskRepository.existsById(taskId)) throw new RuntimeException("Task not found");
+        if(!taskRepository.existsById(taskId)) throw new TaskNotFoundException("task not found");
         subtasks =  subtasks.stream()
                 .filter(sub -> Objects.equals(sub.getTask().getId(), taskId))
                 .toList();
-        if(subtasks.isEmpty()) throw new RuntimeException("Subtask not found for this task");
+        if(subtasks.isEmpty()) throw new SubTaskException("subtask not found for this task");
         return subtasks;
     }
 
-    public SubTask createSubtask(SubTask subTask) {
-        if(subTask == null) throw new RuntimeException("Subtask not instancead");
+    public SubTask createSubtask(SubTaskRequestDTO subTaskDTO) {
+        if(subTaskDTO == null) throw new RuntimeException("subtask not instancead");
+        SubTask subTask = new SubTask(subTaskDTO);
         return subTaskRespository.save(subTask);
     }
 
     public void deleteSubtask(Long id) {
         if(subTaskRespository.existsById(id))
             subTaskRespository.deleteById(id);
-        else throw new RuntimeException("SubTask not found");
+        else throw new SubTaskException("subtask not found");
     }
 
 }

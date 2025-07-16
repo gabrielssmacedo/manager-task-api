@@ -1,5 +1,6 @@
 package gsm.task.manager.controller;
 
+import gsm.task.manager.domain.dto.SubTaskRequestDTO;
 import gsm.task.manager.domain.model.SubTask;
 import gsm.task.manager.domain.service.SubTaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,8 +31,8 @@ public class SubTaskController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova subtarefa")
-    public ResponseEntity<SubTask> createSubtask(@RequestBody SubTask subTask) {
-        SubTask subTaskCreated = subTaskService.createSubtask(subTask);
+    public ResponseEntity<SubTask> createSubtask(@RequestBody SubTaskRequestDTO subTaskDTO) {
+        SubTask subTaskCreated = subTaskService.createSubtask(subTaskDTO);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(subTaskCreated.getId())
