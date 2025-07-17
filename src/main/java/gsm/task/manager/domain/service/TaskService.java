@@ -1,6 +1,7 @@
 package gsm.task.manager.domain.service;
 
 import gsm.task.manager.domain.dto.TaskRequestDTO;
+import gsm.task.manager.domain.enums.StatusTask;
 import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.utils.ValidationTask;
@@ -22,10 +23,12 @@ public class TaskService {
 
     public List<Task> findAllTasks() {
         List<Task> tasksFound = taskRepository.findAll();
-        tasksFound = tasksFound.stream().map(task -> {
-            ValidationTask.convertToLocalDate(task);
-            return ValidationTask.validateStatus(task);
-        }).toList();
+
+        tasksFound = tasksFound.stream()
+                .map(task -> {
+                    ValidationTask.convertToLocalDate(task);
+                    return ValidationTask.validateStatus(task);})
+                .toList();
 
         if(tasksFound.isEmpty()) throw new TaskNotFoundException("there are not tasks created");
         return tasksFound;
@@ -38,41 +41,54 @@ public class TaskService {
     }
 
     public List<Task> findWeeklyTasks() {
-        List<Task> allTasks = findAllTasks();
+        List<Task> allTasks = taskRepository.findAll();
+
         allTasks = allTasks.stream().map(task -> {
             ValidationTask.convertToLocalDate(task);
             return ValidationTask.validateStatus(task);
         }).toList();
+
+        LocalDateTime now = LocalDateTime.now();
+
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now().plusDays(8L)))
+                .filter(task -> task.getDatetimeLimit().isBefore(now.plusDays(7L).withHour(23).withMinute(59))
+                        && task.getDatetimeLimit().isAfter(now.minusDays(1L).withHour(23).withMinute(59))
+                        && task.getStatus() != StatusTask.DONE)
                 .toList();
     }
 
     public List<Task> findTaskForToday() {
-        List<Task> allTasks = findAllTasks();
+        List<Task> allTasks = taskRepository.findAll();
+
         allTasks = allTasks.stream().map(task -> {
             ValidationTask.convertToLocalDate(task);
             return ValidationTask.validateStatus(task);
         }).toList();
+
         LocalDateTime now = LocalDateTime.now();
+
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(now.plusHours(24 - now.getHour())))
+                .filter(task -> task.getDatetimeLimit().isBefore(now.withHour(23).withMinute(59))
+                        && task.getDatetimeLimit().isAfter(now.minusDays(1L).withHour(23).withMinute(59))
+                        && task.getStatus() != StatusTask.DONE)
                 .toList();
     }
 
-    public List<Task> findTasksLated() {
-        List<Task> allTasks = findAllTasks();
-        allTasks = allTasks.stream().map(task -> {
-            ValidationTask.convertToLocalDate(task);
-            return ValidationTask.validateStatus(task);
-        }).toList();
+    public List<Task> findTasksByStatus(StatusTask statusTask) {
+        List<Task> allTasks = taskRepository.findAll();
+
+        allTasks = allTasks.stream()
+                .map(task -> {
+                    ValidationTask.convertToLocalDate(task);
+                    return ValidationTask.validateStatus(task);})
+                .toList();
+
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now()))
+                .filter(task -> task.getStatus() == statusTask)
                 .toList();
     }
 
     public Task createTask(TaskRequestDTO taskDTO) {
-
         Task task = new Task(taskDTO);
         ValidationTask.validateStatus(task);
         ValidationTask.convertToGlobalDate(task);
@@ -89,11 +105,21 @@ public class TaskService {
     public Task updateTask(Long id, TaskRequestDTO taskDTO) {
         Task taskToUpdate = new Task(taskDTO);
         Task taskUpdated = findTaskById(id);
+
         ValidationTask.updateData(taskUpdated, taskToUpdate);
         ValidationTask.validateStatus(taskUpdated);
         ValidationTask.convertToGlobalDate(taskUpdated);
         taskUpdated = taskRepository.save(ValidationTask.validateStatus(taskUpdated));
         ValidationTask.convertToLocalDate(taskUpdated);
+
         return taskUpdated;
     }
+
+    public Task closeTask(Long id) {
+        Task taskToClose = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("task not found"));
+        taskToClose.setStatus(StatusTask.DONE);
+        return taskRepository.save(taskToClose);
+    }
+
+
 }

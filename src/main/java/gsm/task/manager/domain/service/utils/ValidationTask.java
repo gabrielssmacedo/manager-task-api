@@ -36,9 +36,12 @@ public class ValidationTask {
     }
 
     public static Task validateStatus(Task task) {
-        if(task.getDatetimeLimit().isAfter(LocalDateTime.now()) && task.getStatus() != StatusTask.DONE)
+        if(task.getStatus() == StatusTask.DONE) return task;
+
+        if(task.getDatetimeLimit().isAfter(LocalDateTime.now()))
             task.setStatus(StatusTask.TO_DO);
         else task.setStatus(StatusTask.LATE);
+
         return task;
     }
 

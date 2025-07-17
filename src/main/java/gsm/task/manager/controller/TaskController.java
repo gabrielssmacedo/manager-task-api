@@ -1,6 +1,7 @@
 package gsm.task.manager.controller;
 
 import gsm.task.manager.domain.dto.TaskRequestDTO;
+import gsm.task.manager.domain.enums.StatusTask;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,11 +10,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -49,17 +52,17 @@ public class TaskController {
 
     @GetMapping("/today")
     @Operation(summary = "Visualizar todas as tarefas de hoje",
-            description = "Retorna as tarefas que possuem data limite igual a data atual de hoje")
+            description = "Retorna as tarefas que possuem data limite igual a data atual")
     public ResponseEntity<List<Task>> findTasksForToday() {
         List<Task> tasks = taskService.findTaskForToday();
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/late")
-    @Operation(summary = "Visualizar todas as tarefas atrasadas",
-            description = "Retorna tarefas que passaram a data limite e não foram concluídas")
-    public ResponseEntity<List<Task>> findTasksLate() {
-        List<Task> tasks = taskService.findTasksLated();
+    @GetMapping("/status")
+    @Operation(summary = "Visualizar tarefas pelo status",
+            description = "Retorna tarefas de acordo com status passado (LATE, TO_DO, DONE)")
+    public ResponseEntity<List<Task>> findTasksByStatus(@RequestParam(value = "status", defaultValue = "TO_DO") StatusTask status) {
+        List<Task> tasks = taskService.findTasksByStatus(status);
         return ResponseEntity.ok(tasks);
     }
 
@@ -86,8 +89,21 @@ public class TaskController {
         return ResponseEntity.created(uri).body(taskCreated);
     }
 
+    @PatchMapping("/{id}")
+    @Operation(summary = "Concluir uma tarefa", description = "Ao concluir uma tarefa, seu status muda para 'DONE'")
+    public ResponseEntity<Task> finishTask(@PathVariable Long id) {
+        Task taskFinished = taskService.closeTask(id);
+        return ResponseEntity.ok(taskFinished);
+    }
+
     @PutMapping("/{id}")
-    @Operation(summary = "Modificar campos de uma tarefa", description = "   ")
+    @Operation(summary = "Modificar campos de uma tarefa", description = "Permite a modificação dos atributos de " +
+            "uma task já cadastrada, ATENTE-SE AS VALIDAÇÕES"
+            +  "\n- **title (String)**: *título da tarefa (max 50 caracteres)*\n"
+            +  "\n- **shortDescription (String)**: *breve descrição da tarefa (max 200 caracteres)*"
+            +  "\n- **category (Enum)**: *categoria da tarefa (STUDYING, WORKOUT, WORKING, READING, DRINK_WATER, CLEANING, PLANNING, OTHERS)*"
+            +  "\n- **priority (Enum)**: *prioridade da tarefa (LOW, MIDDLE, HIGH)*"
+            +  "\n- **datetimeLimit (Enum)**: *data e tempo limite para concluir a tarefa **(no formato data/hora 'dd/MM/yyyy HH:mm')***")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestDTO taskToUpdate) {
         Task taskUpdated = taskService.updateTask(id, taskToUpdate);
         return ResponseEntity.ok(taskUpdated);
