@@ -97,7 +97,13 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Modificar campos de uma tarefa", description = "   ")
+    @Operation(summary = "Modificar campos de uma tarefa", description = "Permite a modificação dos atributos de " +
+            "uma task já cadastrada, ATENTE-SE AS VALIDAÇÕES"
+            +  "\n- **title (String)**: *título da tarefa (max 50 caracteres)*\n"
+            +  "\n- **shortDescription (String)**: *breve descrição da tarefa (max 200 caracteres)*"
+            +  "\n- **category (Enum)**: *categoria da tarefa (STUDYING, WORKOUT, WORKING, READING, DRINK_WATER, CLEANING, PLANNING, OTHERS)*"
+            +  "\n- **priority (Enum)**: *prioridade da tarefa (LOW, MIDDLE, HIGH)*"
+            +  "\n- **datetimeLimit (Enum)**: *data e tempo limite para concluir a tarefa **(no formato data/hora 'dd/MM/yyyy HH:mm')***")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestDTO taskToUpdate) {
         Task taskUpdated = taskService.updateTask(id, taskToUpdate);
         return ResponseEntity.ok(taskUpdated);
