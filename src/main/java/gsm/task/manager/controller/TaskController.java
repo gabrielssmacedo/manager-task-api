@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,7 +50,7 @@ public class TaskController {
 
     @GetMapping("/today")
     @Operation(summary = "Visualizar todas as tarefas de hoje",
-            description = "Retorna as tarefas que possuem data limite igual a data atual de hoje")
+            description = "Retorna as tarefas que possuem data limite igual a data atual")
     public ResponseEntity<List<Task>> findTasksForToday() {
         List<Task> tasks = taskService.findTaskForToday();
         return ResponseEntity.ok(tasks);
@@ -84,6 +85,13 @@ public class TaskController {
                 .buildAndExpand(taskCreated.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(taskCreated);
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Concluir uma tarefa", description = "Ao concluir uma tarefa, seu status muda para 'DONE'")
+    public ResponseEntity<Task> finishTask(@PathVariable Long id) {
+        Task taskFinished = taskService.closeTask(id);
+        return ResponseEntity.ok(taskFinished);
     }
 
     @PutMapping("/{id}")

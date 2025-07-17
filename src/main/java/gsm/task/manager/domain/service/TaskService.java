@@ -1,6 +1,7 @@
 package gsm.task.manager.domain.service;
 
 import gsm.task.manager.domain.dto.TaskRequestDTO;
+import gsm.task.manager.domain.enums.StatusTask;
 import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.utils.ValidationTask;
@@ -44,7 +45,8 @@ public class TaskService {
             return ValidationTask.validateStatus(task);
         }).toList();
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now().plusDays(8L)))
+                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now().plusDays(8L))
+                                      && task.getStatus() != StatusTask.DONE)
                 .toList();
     }
 
@@ -56,7 +58,8 @@ public class TaskService {
         }).toList();
         LocalDateTime now = LocalDateTime.now();
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(now.plusHours(24 - now.getHour())))
+                .filter(task -> task.getDatetimeLimit().isBefore(now.plusHours(24 - now.getHour()))
+                        && task.getStatus() != StatusTask.DONE)
                 .toList();
     }
 
@@ -72,7 +75,6 @@ public class TaskService {
     }
 
     public Task createTask(TaskRequestDTO taskDTO) {
-
         Task task = new Task(taskDTO);
         ValidationTask.validateStatus(task);
         ValidationTask.convertToGlobalDate(task);
@@ -95,5 +97,11 @@ public class TaskService {
         taskUpdated = taskRepository.save(ValidationTask.validateStatus(taskUpdated));
         ValidationTask.convertToLocalDate(taskUpdated);
         return taskUpdated;
+    }
+
+    public Task closeTask(Long id) {
+        Task taskToClose = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("task not found"));
+        taskToClose.setStatus(StatusTask.DONE);
+        return taskRepository.save(taskToClose);
     }
 }
