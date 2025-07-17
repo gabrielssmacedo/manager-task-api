@@ -1,5 +1,6 @@
 package gsm.task.manager.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import gsm.task.manager.domain.dto.TaskRequestDTO;
 import gsm.task.manager.domain.enums.Category;
 import gsm.task.manager.domain.enums.Priority;
@@ -16,6 +17,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,6 +55,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private StatusTask status;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     @Column(name = "datetime_task")
     private LocalDateTime datetimeLimit;
 
