@@ -74,7 +74,7 @@ public class TaskService {
                 .toList();
     }
 
-    public List<Task> findTasksLated() {
+    public List<Task> findTasksByStatus(StatusTask statusTask) {
         List<Task> allTasks = taskRepository.findAll();
 
         allTasks = allTasks.stream()
@@ -84,7 +84,7 @@ public class TaskService {
                 .toList();
 
         return allTasks.stream()
-                .filter(task -> task.getDatetimeLimit().isBefore(LocalDateTime.now()))
+                .filter(task -> task.getStatus() == statusTask)
                 .toList();
     }
 
@@ -120,4 +120,6 @@ public class TaskService {
         taskToClose.setStatus(StatusTask.DONE);
         return taskRepository.save(taskToClose);
     }
+
+
 }

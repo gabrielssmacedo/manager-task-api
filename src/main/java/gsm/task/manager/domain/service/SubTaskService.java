@@ -45,5 +45,4 @@ public class SubTaskService {
             subTaskRespository.deleteById(id);
         else throw new SubTaskException("subtask not found");
     }
-
 }

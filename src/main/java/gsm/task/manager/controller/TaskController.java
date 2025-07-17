@@ -1,6 +1,7 @@
 package gsm.task.manager.controller;
 
 import gsm.task.manager.domain.dto.TaskRequestDTO;
+import gsm.task.manager.domain.enums.StatusTask;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -56,11 +58,11 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/late")
-    @Operation(summary = "Visualizar todas as tarefas atrasadas",
-            description = "Retorna tarefas que passaram a data limite e não foram concluídas")
-    public ResponseEntity<List<Task>> findTasksLate() {
-        List<Task> tasks = taskService.findTasksLated();
+    @GetMapping("/status")
+    @Operation(summary = "Visualizar tarefas pelo status",
+            description = "Retorna tarefas de acordo com status passado (LATE, TO_DO, DONE)")
+    public ResponseEntity<List<Task>> findTasksByStatus(@RequestParam(value = "status", defaultValue = "TO_DO") StatusTask status) {
+        List<Task> tasks = taskService.findTasksByStatus(status);
         return ResponseEntity.ok(tasks);
     }
 
