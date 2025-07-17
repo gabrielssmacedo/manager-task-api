@@ -6,20 +6,25 @@ import gsm.task.manager.domain.exceptions.TaskNotFoundException;
 import gsm.task.manager.domain.model.Task;
 import gsm.task.manager.repository.TaskRepository;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
+   // private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mmZ");
 
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+        //this.dateTimeFormatter = dateTimeFormatter;
     }
 
     public List<Task> findAllTasks() {
@@ -74,6 +79,7 @@ public class TaskService {
     }
 
     public Task createTask(TaskRequestDTO taskDTO) {
+
         Task task = new Task(taskDTO);
         validateStatus(task);
         convertToGlobalDate(task);

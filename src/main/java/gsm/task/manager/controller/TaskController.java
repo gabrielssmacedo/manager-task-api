@@ -39,21 +39,25 @@ public class TaskController {
     }
 
     @GetMapping("/week")
-    @Operation(summary = "Visualizar todas as tarefas da semana", description = "  ")
+    @Operation(summary = "Visualizar todas as tarefas da semana",
+            description = "Retorna as tarefas que possuem data limite anterior a um periodo de 7 dias" +
+                          "\n- Ex: Se hoje é 17/07, irá retornar tarefas com data limite anterior ao dia 25/07")
     public ResponseEntity<List<Task>> findWeeklyTasks() {
         List<Task> tasks = taskService.findWeeklyTasks();
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/today")
-    @Operation(summary = "Visualizar todas as tarefas de hoje", description = "  ")
+    @Operation(summary = "Visualizar todas as tarefas de hoje",
+            description = "Retorna as tarefas que possuem data limite igual a data atual de hoje")
     public ResponseEntity<List<Task>> findTasksForToday() {
         List<Task> tasks = taskService.findTaskForToday();
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/late")
-    @Operation(summary = "Visualizar todas as tarefas atrasadas", description = "  ")
+    @Operation(summary = "Visualizar todas as tarefas atrasadas",
+            description = "Retorna tarefas que passaram a data limite e não foram concluídas")
     public ResponseEntity<List<Task>> findTasksLate() {
         List<Task> tasks = taskService.findTasksLated();
         return ResponseEntity.ok(tasks);
@@ -67,7 +71,12 @@ public class TaskController {
     }
 
     @PostMapping
-    @Operation(summary = "Criar nova tarefa", description = "   ")
+    @Operation(summary = "Criar nova tarefa", description = "#### Antes de criar uma nova Tarefa, ATENTE-SE AS VALIDAÇÕES\n"
+            +  "\n- **title (String)**: *título da tarefa (max 50 caracteres)*\n"
+            +  "\n- **shortDescription (String)**: *breve descrição da tarefa (max 200 caracteres)*"
+            +  "\n- **category (Enum)**: *categoria da tarefa (STUDYING, WORKOUT, WORKING, READING, DRINK_WATER, CLEANING, PLANNING, OTHERS)*"
+            +  "\n- **priority (Enum)**: *prioridade da tarefa (LOW, MIDDLE, HIGH)*"
+            +  "\n- **datetimeLimit (Enum)**: *data e tempo limite para concluir a tarefa **(no formato data/hora 'dd/MM/yyyy HH:mm')***")
     public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequestDTO taskToCreate) {
         Task taskCreated = taskService.createTask(taskToCreate);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
